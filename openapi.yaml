@@ -1,0 +1,266 @@
+openapi: 3.0.3
+info:
+  title: Campaign Budget Planner API
+  version: 1.0.0
+  description: Budget distribution and reach projection across channels with strategy comparison.
+
+servers:
+  - url: http://localhost:3000
+
+paths:
+  /api/config:
+    get:
+      summary: Get channels, default CPM and strategy presets
+      operationId: getConfig
+      responses:
+        "200":
+          description: Config returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfigResponse"
+
+  /api/plan:
+    post:
+      summary: Calculate budget plan for a selected strategy (or custom mix)
+      operationId: createPlan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BudgetPlanRequest"
+            examples:
+              balancedExample:
+                value:
+                  totalBudget: 10000
+                  durationDays: 30
+                  strategy: balanced
+              customWithOverrides:
+                value:
+                  totalBudget: 10000
+                  durationDays: 30
+                  strategy: custom
+                  customMix:
+                    video: 0.25
+                    display: 0.25
+                    social: 0.50
+                  cpmOverrides:
+                    video: 14
+      responses:
+        "200":
+          description: Plan calculated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BudgetPlanResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /api/compare:
+    post:
+      summary: Compare preset strategies across same input budget and duration
+      operationId: compareStrategies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StrategyCompareRequest"
+            examples:
+              compareExample:
+                value:
+                  totalBudget: 10000
+                  durationDays: 30
+                  cpmOverrides:
+                    social: 5
+      responses:
+        "200":
+          description: Comparison calculated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StrategyCompareResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+components:
+  schemas:
+    ChannelKey:
+      type: string
+      enum: [video, display, social]
+
+    StrategyKey:
+      type: string
+      enum: [balanced, max_reach, max_engagement, custom]
+
+    Mix:
+      type: object
+      additionalProperties: false
+      properties:
+        video: { type: number, minimum: 0 }
+        display: { type: number, minimum: 0 }
+        social: { type: number, minimum: 0 }
+
+    CpmOverrides:
+      type: object
+      additionalProperties: false
+      properties:
+        video: { type: number, minimum: 0.01 }
+        display: { type: number, minimum: 0.01 }
+        social: { type: number, minimum: 0.01 }
+
+    BudgetPlanRequest:
+      type: object
+      required: [totalBudget, durationDays, strategy]
+      additionalProperties: false
+      properties:
+        totalBudget:
+          type: number
+          minimum: 1
+        durationDays:
+          type: integer
+          minimum: 1
+        strategy:
+          $ref: "#/components/schemas/StrategyKey"
+        customMix:
+          $ref: "#/components/schemas/Mix"
+        cpmOverrides:
+          $ref: "#/components/schemas/CpmOverrides"
+
+    ChannelAllocation:
+      type: object
+      required: [channelKey, share, budget, cpm, impressions]
+      additionalProperties: false
+      properties:
+        channelKey:
+          $ref: "#/components/schemas/ChannelKey"
+        share:
+          type: number
+          minimum: 0
+        budget:
+          type: number
+          minimum: 0
+        cpm:
+          type: number
+          minimum: 0.01
+        impressions:
+          type: integer
+          minimum: 0
+
+    Totals:
+      type: object
+      required: [impressionsTotal]
+      additionalProperties: false
+      properties:
+        impressionsTotal:
+          type: integer
+          minimum: 0
+
+    BudgetPlanResponse:
+      type: object
+      required: [totalBudget, durationDays, strategyUsed, allocations, totals, warnings]
+      additionalProperties: false
+      properties:
+        totalBudget: { type: number }
+        durationDays: { type: integer }
+        strategyUsed:
+          $ref: "#/components/schemas/StrategyKey"
+        allocations:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChannelAllocation"
+        totals:
+          $ref: "#/components/schemas/Totals"
+        warnings:
+          type: array
+          items: { type: string }
+
+    StrategyCompareRequest:
+      type: object
+      required: [totalBudget, durationDays]
+      additionalProperties: false
+      properties:
+        totalBudget:
+          type: number
+          minimum: 1
+        durationDays:
+          type: integer
+          minimum: 1
+        cpmOverrides:
+          $ref: "#/components/schemas/CpmOverrides"
+
+    StrategySummary:
+      type: object
+      required: [strategy, totals, allocations]
+      additionalProperties: false
+      properties:
+        strategy:
+          $ref: "#/components/schemas/StrategyKey"
+        totals:
+          $ref: "#/components/schemas/Totals"
+        allocations:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChannelAllocation"
+        warnings:
+          type: array
+          items: { type: string }
+
+    StrategyCompareResponse:
+      type: object
+      required: [totalBudget, durationDays, results]
+      additionalProperties: false
+      properties:
+        totalBudget: { type: number }
+        durationDays: { type: integer }
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/StrategySummary"
+
+    ConfigResponse:
+      type: object
+      required: [channels, strategies]
+      additionalProperties: false
+      properties:
+        channels:
+          type: array
+          items:
+            type: object
+            required: [channelKey, defaultCpm]
+            additionalProperties: false
+            properties:
+              channelKey:
+                $ref: "#/components/schemas/ChannelKey"
+              defaultCpm:
+                type: number
+        strategies:
+          type: array
+          items:
+            type: object
+            required: [strategy, mix]
+            additionalProperties: false
+            properties:
+              strategy:
+                $ref: "#/components/schemas/StrategyKey"
+              mix:
+                $ref: "#/components/schemas/Mix"
+
+    ApiError:
+      type: object
+      required: [message]
+      additionalProperties: false
+      properties:
+        message: { type: string }
+        details:
+          type: array
+          items: { type: string }
