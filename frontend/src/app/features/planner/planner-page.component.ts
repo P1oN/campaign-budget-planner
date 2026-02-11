@@ -116,6 +116,11 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
       });
 
     this.form.get('cpm')?.disable({ emitEvent: false });
+    this.form
+      .get('strategy')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.updateCustomMixState());
+    this.updateCustomMixState();
   }
 
   ngOnDestroy(): void {
@@ -412,5 +417,19 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
       (savedStrategy) => this.mixKey(savedStrategy.mix) !== key
     );
     this.persistCustomStrategyHistory();
+  }
+
+  private updateCustomMixState(): void {
+    const mixGroup = this.form.get('customMix');
+    if (!mixGroup) {
+      return;
+    }
+
+    if (this.showCustomMix) {
+      mixGroup.enable({ emitEvent: false });
+      return;
+    }
+
+    mixGroup.disable({ emitEvent: false });
   }
 }

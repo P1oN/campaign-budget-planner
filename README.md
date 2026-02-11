@@ -169,5 +169,10 @@ docker compose -f docker-compose.dev.yml exec backend npm test
 
 Frontend unit tests:
 ```bash
+docker compose -f docker-compose.dev.yml exec frontend npm run test-headless
+```
+
+Frontend build check:
+```bash
 docker compose -f docker-compose.dev.yml exec frontend npm run build
 ```

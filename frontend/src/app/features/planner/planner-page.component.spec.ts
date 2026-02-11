@@ -147,4 +147,25 @@ describe('PlannerPageComponent', () => {
       { name: 'Custom B', mix: { video: 0.5, display: 0.2, social: 0.3 } }
     ]);
   });
+
+  it('allows non-custom submit even if custom mix values are currently invalid', () => {
+    const fixture = TestBed.createComponent(PlannerPageComponent);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance;
+    component.form.get('strategy')?.setValue('custom');
+    component.form.get('customMix.video')?.setValue(100);
+    component.form.get('customMix.display')?.setValue(100);
+    component.form.get('customMix.social')?.setValue(100);
+    component.form.get('strategy')?.setValue('balanced');
+
+    component.submit();
+
+    expect(component.errorMessage).toBe('');
+    expect(mockApi.createPlan).toHaveBeenCalledWith({
+      totalBudget: 10000,
+      durationDays: 30,
+      strategy: 'balanced',
+    });
+  });
 });
