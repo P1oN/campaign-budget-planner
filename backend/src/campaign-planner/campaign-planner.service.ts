@@ -108,10 +108,8 @@ export class CampaignPlannerService {
     const allocations: ChannelAllocation[] = CHANNEL_KEYS.map((channelKey) => {
       const share = shares[channelKey];
       const budget = totalBudget * share;
-      const dailyBudget = budget / durationDays;
       const cpm = cpms[channelKey];
-      const impressionsPerDay = Math.floor((dailyBudget / cpm) * 1000);
-      const impressions = impressionsPerDay * durationDays;
+      const impressions = Math.floor((budget / cpm) * 1000);
       return {
         channelKey,
         share,

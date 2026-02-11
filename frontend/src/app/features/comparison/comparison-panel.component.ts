@@ -4,6 +4,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CampaignPlannerApi } from '../../core/api/campaign-planner.api';
 import {
   BudgetPlanResponse,
+  ChannelShareMix,
   CustomStrategy,
   CpmOverrides,
   StrategyCompareRequest,
@@ -49,6 +50,10 @@ export class ComparisonPanelComponent {
       this.errorMessage = 'Duration must be > 0.';
       return;
     }
+    if (!Number.isInteger(this.durationDays)) {
+      this.errorMessage = 'Duration must be a whole number of days.';
+      return;
+    }
 
     const request: StrategyCompareRequest = {
       totalBudget: this.totalBudget,
@@ -58,8 +63,11 @@ export class ComparisonPanelComponent {
     if (this.cpmOverrides && Object.keys(this.cpmOverrides).length > 0) {
       request.cpmOverrides = this.cpmOverrides;
     }
-    if (this.customStrategies.length > 0) {
-      request.customStrategies = this.customStrategies;
+    const validCustomStrategies = this.customStrategies.filter((strategy) =>
+      this.isValidCustomStrategy(strategy)
+    );
+    if (validCustomStrategies.length > 0) {
+      request.customStrategies = validCustomStrategies;
     }
 
     this.loading = true;
@@ -119,5 +127,25 @@ export class ComparisonPanelComponent {
       return message;
     }
     return fallback;
+  }
+
+  private isValidCustomStrategy(strategy: CustomStrategy): boolean {
+    if (!strategy?.name || !strategy.mix) {
+      return false;
+    }
+    return this.isValidMix(strategy.mix);
+  }
+
+  private isValidMix(mix: ChannelShareMix): boolean {
+    const values = [mix.video, mix.display, mix.social];
+    if (values.some((value) => !Number.isFinite(value))) {
+      return false;
+    }
+    const inBounds = values.every((value) => value >= 0 && value <= 1);
+    if (!inBounds) {
+      return false;
+    }
+    const tolerance = 0.0001;
+    return Math.abs(values.reduce((sum, value) => sum + value, 0) - 1) <= tolerance;
   }
 }

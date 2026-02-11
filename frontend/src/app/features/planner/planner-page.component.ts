@@ -376,12 +376,14 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
       return false;
     }
     const item = value as Partial<CustomStrategy>;
+    const mix = item.mix;
     return (
       typeof item.name === 'string' &&
-      !!item.mix &&
-      typeof item.mix.video === 'number' &&
-      typeof item.mix.display === 'number' &&
-      typeof item.mix.social === 'number'
+      !!mix &&
+      typeof mix.video === 'number' &&
+      typeof mix.display === 'number' &&
+      typeof mix.social === 'number' &&
+      this.isValidMix(mix)
     );
   }
 
@@ -418,5 +420,17 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
       return message;
     }
     return fallback;
+  }
+
+  private isValidMix(mix: ChannelShareMix): boolean {
+    if (!Number.isFinite(mix.video) || !Number.isFinite(mix.display) || !Number.isFinite(mix.social)) {
+      return false;
+    }
+    const inBounds = [mix.video, mix.display, mix.social].every((value) => value >= 0 && value <= 1);
+    if (!inBounds) {
+      return false;
+    }
+    const tolerance = 0.0001;
+    return Math.abs(mix.video + mix.display + mix.social - 1) <= tolerance;
   }
 }

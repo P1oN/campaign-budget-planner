@@ -117,4 +117,35 @@ describe('ComparisonPanelComponent', () => {
     expect(emitSpy).toHaveBeenCalledWith(comparisonResults[0]);
     expect(component.selectedStrategyName).toBe('Balanced');
   });
+
+  it('prevents comparison when duration is not a whole number', () => {
+    const fixture = TestBed.createComponent(ComparisonPanelComponent);
+    const component = fixture.componentInstance;
+    component.totalBudget = 10000;
+    component.durationDays = 30.5;
+
+    component.compare();
+
+    expect(component.errorMessage).toBe('Duration must be a whole number of days.');
+    expect(mockApi.compare).not.toHaveBeenCalled();
+  });
+
+  it('filters invalid saved custom strategies before calling compare', () => {
+    const fixture = TestBed.createComponent(ComparisonPanelComponent);
+    const component = fixture.componentInstance;
+    component.totalBudget = 10000;
+    component.durationDays = 30;
+    component.customStrategies = [
+      { name: 'Valid', mix: { video: 0.5, display: 0.2, social: 0.3 } },
+      { name: 'Invalid', mix: { video: 1.2, display: -0.1, social: -0.1 } }
+    ];
+
+    component.compare();
+
+    expect(mockApi.compare).toHaveBeenCalledWith({
+      totalBudget: 10000,
+      durationDays: 30,
+      customStrategies: [{ name: 'Valid', mix: { video: 0.5, display: 0.2, social: 0.3 } }]
+    });
+  });
 });
