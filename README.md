@@ -120,28 +120,31 @@ Request example:
 	- We estimate impressions using a simple CPM-based formula:
 	  - impressions = floor((allocatedBudget / cpm) * 1000)
 	- We do not model diminishing returns, frequency capping, or audience overlap in MVP.
-	-	CPM values are simplified defaults and can be overridden per request.
+	- CPM values are simplified defaults and can be overridden per request.
 	
 ---
 
 # Decisions postponed / left flexible
 
-	-	Diminishing returns & saturation curves per channel
-	-	Unique reach (vs impressions) and frequency models
-	-	Audience overlap across channels
-	-	Auth, persistence, saved scenarios
-	-	Integrations with Google/Meta APIs
+	- Diminishing returns & saturation curves per channel
+	- Unique reach (vs impressions) and frequency models
+	- Audience overlap across channels
+	- Auth, persistence, saved scenarios
+	- Integrations with Google/Meta APIs
 
 ---
 
 # If I had more time (production extensions)
 
+  - Visual polish and UX refinement
+  - Offline capabilities
   - Historical performance inputs per region/targeting to calibrate CPM/reach
   - Diminishing returns and saturation modeling
-	-	“Quality reach” metric (engagement weights) and multi-objective optimization
-	-	User accounts + saved scenarios
-	-	Observability: structured logs, Sentry, metrics, dashboards
-	-	CI pipelines: lint/test/build in containers
+  - “Quality reach” metric (engagement weights) and multi-objective optimization
+  - User accounts + saved scenarios
+  - Observability: structured logs, Sentry, metrics, dashboards
+  - CI pipelines: lint/test/build in containers
+  - Results/strategy sharing functionality (e.g. email / messaging integration)
 
 ---
 
