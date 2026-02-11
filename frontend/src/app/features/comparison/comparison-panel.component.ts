@@ -3,8 +3,8 @@ import { Component, Input } from '@angular/core';
 
 import { CampaignPlannerApi } from '../../core/api/campaign-planner.api';
 import {
+  BudgetPlanResponse,
   CpmOverrides,
-  StrategyCompareItem,
   StrategyCompareRequest,
 } from '../../core/models/domain.models';
 
@@ -21,7 +21,7 @@ export class ComparisonPanelComponent {
 
   loading = false;
   errorMessage = '';
-  results: StrategyCompareItem[] = [];
+  results: BudgetPlanResponse[] = [];
 
   readonly strategyLabels: Record<string, string> = {
     balanced: 'Balanced',
@@ -57,7 +57,7 @@ export class ComparisonPanelComponent {
     this.loading = true;
     this.api.compare(request).subscribe({
       next: (response) => {
-        this.results = response.results ?? [];
+        this.results = response ?? [];
         this.loading = false;
       },
       error: (err) => {
@@ -71,7 +71,7 @@ export class ComparisonPanelComponent {
     if (!this.results.length) {
       return 0;
     }
-    return Math.max(...this.results.map((item) => item.totalImpressions ?? 0));
+    return Math.max(...this.results.map((item) => item.totals?.impressionsTotal ?? 0));
   }
 
   barWidth(value: number): string {
@@ -82,10 +82,14 @@ export class ComparisonPanelComponent {
     return `${Math.round((value / max) * 100)}%`;
   }
 
-  mixSummary(item: StrategyCompareItem): string {
-    const v = Math.round((item.mix?.video ?? 0) * 100);
-    const d = Math.round((item.mix?.display ?? 0) * 100);
-    const s = Math.round((item.mix?.social ?? 0) * 100);
+  mixSummary(item: BudgetPlanResponse): string {
+    const shares = item.allocations.reduce<Record<string, number>>((acc, allocation) => {
+      acc[allocation.channelKey] = allocation.share;
+      return acc;
+    }, {});
+    const v = Math.round((shares['video'] ?? 0) * 100);
+    const d = Math.round((shares['display'] ?? 0) * 100);
+    const s = Math.round((shares['social'] ?? 0) * 100);
     return `V:${v}% D:${d}% S:${s}%`;
   }
 }

@@ -13,7 +13,7 @@ export interface BudgetPlanRequest {
 }
 
 export interface ChannelAllocation {
-  channel: ChannelKey;
+  channelKey: ChannelKey;
   share: number;
   budget: number;
   cpm: number;
@@ -23,7 +23,9 @@ export interface ChannelAllocation {
 export interface BudgetPlanResponse {
   strategy: StrategyKey;
   allocations: ChannelAllocation[];
-  totalImpressions: number;
+  totals: {
+    impressionsTotal: number;
+  };
   warnings: string[];
 }
 
@@ -33,17 +35,8 @@ export interface StrategyCompareRequest {
   cpmOverrides?: CpmOverrides;
 }
 
-export interface StrategyCompareItem {
-  strategy: Exclude<StrategyKey, 'custom'>;
-  mix: Mix;
-  totalImpressions: number;
-}
-
-export interface StrategyCompareResponse {
-  results: StrategyCompareItem[];
-}
-
 export interface ConfigResponse {
-  defaultCpm: Mix;
-  strategies: Record<Exclude<StrategyKey, 'custom'>, Mix>;
+  channels: ChannelKey[];
+  defaultCpms: Mix;
+  strategyPresets: Record<Exclude<StrategyKey, 'custom'>, Mix>;
 }

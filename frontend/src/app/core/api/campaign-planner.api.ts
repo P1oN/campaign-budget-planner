@@ -7,7 +7,6 @@ import {
   BudgetPlanResponse,
   ConfigResponse,
   StrategyCompareRequest,
-  StrategyCompareResponse,
 } from '../models/domain.models';
 
 @Injectable({ providedIn: 'root' })
@@ -22,7 +21,7 @@ export class CampaignPlannerApi {
     return this.http.post<BudgetPlanResponse>('/api/plan', request);
   }
 
-  compare(request: StrategyCompareRequest): Observable<StrategyCompareResponse> {
-    return this.http.post<StrategyCompareResponse>('/api/compare', request);
+  compare(request: StrategyCompareRequest): Observable<BudgetPlanResponse[]> {
+    return this.http.post<BudgetPlanResponse[]>('/api/compare', request);
   }
 }

@@ -76,7 +76,7 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.api.getConfig().subscribe({
       next: (config) => {
-        this.defaultCpm = config.defaultCpm;
+        this.defaultCpm = config.defaultCpms;
       },
       error: () => {
         this.configError = 'Unable to load defaults. You can still run plans manually.';
@@ -200,8 +200,8 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
     if (!this.plan) {
       return 0;
     }
-    if (typeof this.plan.totalImpressions === 'number') {
-      return this.plan.totalImpressions;
+    if (typeof this.plan.totals?.impressionsTotal === 'number') {
+      return this.plan.totals.impressionsTotal;
     }
     return this.plan.allocations.reduce((sum, item) => sum + (item.impressions ?? 0), 0);
   }

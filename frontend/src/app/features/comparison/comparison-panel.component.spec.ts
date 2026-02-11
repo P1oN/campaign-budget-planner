@@ -1,0 +1,64 @@
+import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
+
+import { CampaignPlannerApi } from '../../core/api/campaign-planner.api';
+import { BudgetPlanResponse } from '../../core/models/domain.models';
+import { ComparisonPanelComponent } from './comparison-panel.component';
+
+describe('ComparisonPanelComponent', () => {
+  let mockApi: jasmine.SpyObj<CampaignPlannerApi>;
+
+  const comparisonResults: BudgetPlanResponse[] = [
+    {
+      strategy: 'balanced',
+      allocations: [
+        { channelKey: 'video', share: 0.3, budget: 3000, cpm: 12, impressions: 250000 },
+        { channelKey: 'display', share: 0.3, budget: 3000, cpm: 6, impressions: 500000 },
+        { channelKey: 'social', share: 0.4, budget: 4000, cpm: 4, impressions: 1000000 },
+      ],
+      totals: { impressionsTotal: 1750000 },
+      warnings: [],
+    },
+    {
+      strategy: 'max_reach',
+      allocations: [
+        { channelKey: 'video', share: 0.15, budget: 1500, cpm: 12, impressions: 125000 },
+        { channelKey: 'display', share: 0.35, budget: 3500, cpm: 6, impressions: 583333 },
+        { channelKey: 'social', share: 0.5, budget: 5000, cpm: 4, impressions: 1250000 },
+      ],
+      totals: { impressionsTotal: 1958333 },
+      warnings: [],
+    },
+  ];
+
+  beforeEach(async () => {
+    mockApi = jasmine.createSpyObj('CampaignPlannerApi', ['compare']);
+    mockApi.compare.and.returnValue(of(comparisonResults));
+
+    await TestBed.configureTestingModule({
+      imports: [ComparisonPanelComponent],
+      providers: [{ provide: CampaignPlannerApi, useValue: mockApi }],
+    }).compileComponents();
+  });
+
+  it('loads comparison results when compare is triggered', () => {
+    const fixture = TestBed.createComponent(ComparisonPanelComponent);
+    const component = fixture.componentInstance;
+    component.totalBudget = 10000;
+    component.durationDays = 30;
+
+    fixture.detectChanges();
+    component.compare();
+    fixture.detectChanges();
+
+    expect(mockApi.compare).toHaveBeenCalledWith({
+      totalBudget: 10000,
+      durationDays: 30,
+    });
+    expect(component.results.length).toBe(2);
+
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain('Balanced');
+    expect(text).toContain('Max Reach');
+  });
+});

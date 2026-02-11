@@ -148,7 +148,7 @@
     </form>
   </section>
 
-  <section class="space-y-6">
+  <section class="grid gap-y-6">
     <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <div class="mb-4 flex items-center justify-between">
         <div>
@@ -184,7 +184,7 @@
             </thead>
             <tbody>
               <tr *ngFor="let item of plan.allocations" class="border-t border-slate-100">
-                <td class="py-3 font-medium text-slate-900">{{ channelLabels[item.channel] }}</td>
+                <td class="py-3 font-medium text-slate-900">{{ channelLabels[item.channelKey] }}</td>
                 <td class="py-3 text-slate-600">{{ channelSharePercent(item.share) }}%</td>
                 <td class="py-3 text-slate-600">{{ item.budget | currency:'USD':'symbol':'1.0-0' }}</td>
                 <td class="py-3 text-slate-600">{{ item.cpm | number:'1.0-2' }}</td>
@@ -199,7 +199,7 @@
           <div class="space-y-2">
             <div *ngFor="let item of plan.allocations" class="space-y-1">
               <div class="flex items-center justify-between text-xs text-slate-500">
-                <span>{{ channelLabels[item.channel] }}</span>
+                <span>{{ channelLabels[item.channelKey] }}</span>
                 <span>{{ budgetSharePercent(item.budget) }}%</span>
               </div>
               <div class="h-2 rounded-full bg-slate-100">
@@ -217,7 +217,7 @@
           <div class="space-y-2">
             <div *ngFor="let item of plan.allocations" class="space-y-1">
               <div class="flex items-center justify-between text-xs text-slate-500">
-                <span>{{ channelLabels[item.channel] }}</span>
+                <span>{{ channelLabels[item.channelKey] }}</span>
                 <span>{{ item.impressions | number:'1.0-0' }}</span>
               </div>
               <div class="h-2 rounded-full bg-slate-100">

@@ -57,6 +57,22 @@ describe('CampaignPlannerService', () => {
     ]);
   });
 
+  it('compare results include totals and channelKey allocations', () => {
+    const results = service.compare({
+      totalBudget: 2000,
+      durationDays: 14
+    });
+
+    results.forEach((plan) => {
+      expect(plan.totals.impressionsTotal).toBeGreaterThan(0);
+      expect(plan.allocations).toHaveLength(3);
+      plan.allocations.forEach((allocation) => {
+        expect(allocation.channelKey).toBeDefined();
+        expect(typeof allocation.channelKey).toBe('string');
+      });
+    });
+  });
+
   it('applies CPM overrides to impressions', () => {
     const result = service.createPlan({
       totalBudget: 1000,
@@ -67,6 +83,16 @@ describe('CampaignPlannerService', () => {
 
     const video = result.allocations.find((alloc) => alloc.channelKey === 'video');
     expect(video?.impressions).toBe(12500);
+  });
+
+  it('getConfig includes channels, defaultCpms, and strategyPresets', () => {
+    const config = service.getConfig();
+
+    expect(config.channels).toEqual(['video', 'display', 'social']);
+    expect(config.defaultCpms.video).toBeGreaterThan(0);
+    expect(config.strategyPresets.balanced).toBeDefined();
+    expect(config.strategyPresets.max_reach).toBeDefined();
+    expect(config.strategyPresets.max_engagement).toBeDefined();
   });
 
   it('produces warnings when sanity rules are violated', () => {
