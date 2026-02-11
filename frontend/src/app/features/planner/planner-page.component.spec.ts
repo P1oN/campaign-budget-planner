@@ -20,6 +20,7 @@ describe('PlannerPageComponent', () => {
 
   const planResponse: BudgetPlanResponse = {
     strategy: 'balanced',
+    totalBudget: 10000,
     allocations: [
       { channelKey: 'video', share: 0.3, budget: 3000, cpm: 12, impressions: 250000 },
       { channelKey: 'display', share: 0.3, budget: 3000, cpm: 6, impressions: 500000 },

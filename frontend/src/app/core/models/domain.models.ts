@@ -23,6 +23,7 @@ export interface ChannelAllocation {
 export interface BudgetPlanResponse {
   strategy: StrategyKey;
   strategyLabel?: string;
+  totalBudget: number;
   allocations: ChannelAllocation[];
   totals: {
     impressionsTotal: number;

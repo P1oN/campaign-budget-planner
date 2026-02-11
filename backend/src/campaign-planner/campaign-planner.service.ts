@@ -120,6 +120,7 @@ export class CampaignPlannerService {
     return {
       strategy,
       strategyLabel,
+      totalBudget,
       allocations,
       totals: { impressionsTotal },
       warnings: getSanityWarnings(strategy, shares)

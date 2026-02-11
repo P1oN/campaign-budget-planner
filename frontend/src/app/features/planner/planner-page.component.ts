@@ -84,6 +84,7 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
     this.api.getConfig().subscribe({
       next: (config) => {
         this.defaultCpm = config.defaultCpms;
+        this.seedCpmWithDefaults();
       },
       error: () => {
         this.configError = 'Unable to load defaults. You can still run plans manually.';
@@ -100,6 +101,7 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
         }
         if (enabled) {
           cpmGroup.enable({ emitEvent: false });
+          this.seedCpmWithDefaults();
         } else {
           cpmGroup.disable({ emitEvent: false });
         }
@@ -201,6 +203,10 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
     return Number(this.form.get('durationDays')?.value ?? 0);
   }
 
+  get resultBudget(): number {
+    return this.plan?.totalBudget ?? this.totalBudget;
+  }
+
   get cpmOverrides(): CpmOverrides | undefined {
     const overrides = this.buildOverrides();
     return overrides && Object.keys(overrides).length > 0 ? overrides : undefined;
@@ -231,11 +237,10 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
     if (!this.plan) {
       return 0;
     }
-    const totalBudget = this.totalBudget || this.plan.allocations.reduce((sum, item) => sum + (item.budget ?? 0), 0);
-    if (!totalBudget) {
+    if (!this.plan.totalBudget) {
       return 0;
     }
-    return Math.round((allocationBudget / totalBudget) * 100);
+    return Math.round((allocationBudget / this.plan.totalBudget) * 100);
   }
 
   barWidth(value: number, max: number): string {
@@ -263,12 +268,34 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
       const value = raw[channel];
       if (value !== null && value !== undefined && value !== '') {
         const numeric = Number(value);
-        if (!Number.isNaN(numeric) && numeric > 0) {
+        const isSameAsDefault =
+          typeof this.defaultCpm?.[channel] === 'number' && numeric === this.defaultCpm[channel];
+        if (!Number.isNaN(numeric) && numeric > 0 && !isSameAsDefault) {
           overrides[channel] = numeric;
         }
       }
     });
     return overrides;
+  }
+
+  private seedCpmWithDefaults(): void {
+    if (!this.defaultCpm) {
+      return;
+    }
+    const cpmGroup = this.form.get('cpm');
+    if (!cpmGroup) {
+      return;
+    }
+    (['video', 'display', 'social'] as ChannelKey[]).forEach((channel) => {
+      const control = cpmGroup.get(channel);
+      if (!control) {
+        return;
+      }
+      const value = control.value;
+      if (value === null || value === undefined || value === '') {
+        control.setValue(this.defaultCpm?.[channel], { emitEvent: false });
+      }
+    });
   }
 
   private storeCustomStrategy(mix: Mix): void {

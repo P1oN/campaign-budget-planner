@@ -11,6 +11,7 @@ describe('ComparisonPanelComponent', () => {
   const comparisonResults: BudgetPlanResponse[] = [
     {
       strategy: 'balanced',
+      totalBudget: 10000,
       allocations: [
         { channelKey: 'video', share: 0.3, budget: 3000, cpm: 12, impressions: 250000 },
         { channelKey: 'display', share: 0.3, budget: 3000, cpm: 6, impressions: 500000 },
@@ -21,6 +22,7 @@ describe('ComparisonPanelComponent', () => {
     },
     {
       strategy: 'max_reach',
+      totalBudget: 10000,
       allocations: [
         { channelKey: 'video', share: 0.15, budget: 1500, cpm: 12, impressions: 125000 },
         { channelKey: 'display', share: 0.35, budget: 3500, cpm: 6, impressions: 583333 },
@@ -32,6 +34,7 @@ describe('ComparisonPanelComponent', () => {
     {
       strategy: 'custom',
       strategyLabel: 'Custom V45/D35/S20',
+      totalBudget: 10000,
       allocations: [
         { channelKey: 'video', share: 0.45, budget: 4500, cpm: 12, impressions: 375000 },
         { channelKey: 'display', share: 0.35, budget: 3500, cpm: 6, impressions: 583333 },
