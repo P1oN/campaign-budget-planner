@@ -3,6 +3,7 @@ import { BadRequestException } from '@nestjs/common';
 import { CampaignPlannerService } from '../campaign-planner.service';
 import { CpmRepository } from '../repositories/cpm.repository';
 import { StrategyRepository } from '../repositories/strategy.repository';
+import * as sanityRules from '../rules/sanity.rules';
 
 describe('CampaignPlannerService', () => {
   let service: CampaignPlannerService;
@@ -112,13 +113,18 @@ describe('CampaignPlannerService', () => {
     expect(config.strategyPresets.max_engagement).toBeDefined();
   });
 
-  it('returns warnings array in plan responses', () => {
+  it('wires sanity warnings from rules into service responses', () => {
+    const warningsStub = ['stubbed warning'];
+    const warningsSpy = jest.spyOn(sanityRules, 'getSanityWarnings').mockReturnValue(warningsStub);
+
     const plan = service.createPlan({
       totalBudget: 1000,
       durationDays: 30,
       strategy: 'max_reach'
     });
 
-    expect(Array.isArray(plan.warnings)).toBe(true);
+    expect(warningsSpy).toHaveBeenCalledWith('max_reach', { video: 0.15, display: 0.35, social: 0.5 });
+    expect(plan.warnings).toEqual(warningsStub);
+    warningsSpy.mockRestore();
   });
 });

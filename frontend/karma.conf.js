@@ -1,3 +1,13 @@
+const fs = require('node:fs');
+
+if (!process.env.CHROME_BIN) {
+  const candidates = ['/usr/bin/chromium-browser', '/usr/bin/chromium'];
+  const discovered = candidates.find((candidate) => fs.existsSync(candidate));
+  if (discovered) {
+    process.env.CHROME_BIN = discovered;
+  }
+}
+
 module.exports = function (config) {
   config.set({
     basePath: '',
@@ -20,8 +30,14 @@ module.exports = function (config) {
       subdir: '.',
       reporters: [{ type: 'html' }, { type: 'text-summary' }],
     },
+    customLaunchers: {
+      ChromeHeadlessCI: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox', '--disable-dev-shm-usage'],
+      },
+    },
     reporters: ['progress', 'kjhtml'],
-    browsers: ['ChromeHeadless'],
+    browsers: ['ChromeHeadlessCI'],
     restartOnFileChange: true,
   });
 };

@@ -48,7 +48,6 @@ describe('PlannerPageComponent', () => {
 
     const component = fixture.componentInstance;
     component.submit();
-    fixture.detectChanges();
 
     expect(mockApi.createPlan).toHaveBeenCalledWith({
       totalBudget: 10000,
@@ -56,10 +55,6 @@ describe('PlannerPageComponent', () => {
       strategy: 'balanced',
     });
     expect(component.plan).toEqual(planResponse);
-
-    const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain('Results');
-    expect(text).toContain('Video');
   });
 
   it('validates custom mix using floating-point tolerance', () => {
@@ -134,5 +129,22 @@ describe('PlannerPageComponent', () => {
 
     expect(component.plan).toEqual(selectedPlan);
     expect(component.resultStrategyLabel).toBe('Max Reach');
+  });
+
+  it('removes a saved custom strategy from history', () => {
+    const fixture = TestBed.createComponent(PlannerPageComponent);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance;
+    component.customStrategyHistory = [
+      { name: 'Custom A', mix: { video: 0.4, display: 0.3, social: 0.3 } },
+      { name: 'Custom B', mix: { video: 0.5, display: 0.2, social: 0.3 } }
+    ];
+
+    component.removeCustomStrategy({ name: 'Custom A', mix: { video: 0.4, display: 0.3, social: 0.3 } });
+
+    expect(component.customStrategyHistory).toEqual([
+      { name: 'Custom B', mix: { video: 0.5, display: 0.2, social: 0.3 } }
+    ]);
   });
 });

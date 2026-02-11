@@ -12,6 +12,7 @@ import {
 import { Subject, takeUntil } from 'rxjs';
 
 import { CampaignPlannerApi } from '../../core/api/campaign-planner.api';
+import { MIX_TOLERANCE, isValidCustomStrategy } from '../../core/models/custom-strategy.validation';
 import {
   BudgetPlanRequest,
   BudgetPlanResponse,
@@ -353,7 +354,7 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
         return [];
       }
       return parsed
-        .filter((item): item is CustomStrategy => this.isValidCustomStrategy(item))
+        .filter((item): item is CustomStrategy => isValidCustomStrategy(item))
         .slice(0, PlannerPageComponent.MAX_CUSTOM_STRATEGY_HISTORY);
     } catch {
       return [];
@@ -371,22 +372,6 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  private isValidCustomStrategy(value: unknown): value is CustomStrategy {
-    if (!value || typeof value !== 'object') {
-      return false;
-    }
-    const item = value as Partial<CustomStrategy>;
-    const mix = item.mix;
-    return (
-      typeof item.name === 'string' &&
-      !!mix &&
-      typeof mix.video === 'number' &&
-      typeof mix.display === 'number' &&
-      typeof mix.social === 'number' &&
-      this.isValidMix(mix)
-    );
-  }
-
   static mixSumValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       const raw = control.value as Record<string, number>;
@@ -396,8 +381,7 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
       const total = ['video', 'display', 'social']
         .map((key) => Number(raw[key]) || 0)
         .reduce((sum, value) => sum + value, 0);
-      const tolerance = 0.0001;
-      return Math.abs(total - 100) <= tolerance ? null : { mixSumInvalid: true };
+      return Math.abs(total - 100) <= MIX_TOLERANCE ? null : { mixSumInvalid: true };
     };
   }
 
@@ -422,15 +406,11 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
     return fallback;
   }
 
-  private isValidMix(mix: ChannelShareMix): boolean {
-    if (!Number.isFinite(mix.video) || !Number.isFinite(mix.display) || !Number.isFinite(mix.social)) {
-      return false;
-    }
-    const inBounds = [mix.video, mix.display, mix.social].every((value) => value >= 0 && value <= 1);
-    if (!inBounds) {
-      return false;
-    }
-    const tolerance = 0.0001;
-    return Math.abs(mix.video + mix.display + mix.social - 1) <= tolerance;
+  removeCustomStrategy(strategy: CustomStrategy): void {
+    const key = this.mixKey(strategy.mix);
+    this.customStrategyHistory = this.customStrategyHistory.filter(
+      (savedStrategy) => this.mixKey(savedStrategy.mix) !== key
+    );
+    this.persistCustomStrategyHistory();
   }
 }

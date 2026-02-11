@@ -19,6 +19,22 @@
 
   <p class="fade-in-300 text-sm text-rose-600" *ngIf="errorMessage">{{ errorMessage }}</p>
 
+  <div *ngIf="customStrategies.length" class="mb-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Saved Custom Strategies</p>
+    <ul class="space-y-2">
+      <li *ngFor="let strategy of customStrategies" class="flex items-center justify-between gap-2">
+        <span class="text-sm text-slate-700">{{ strategy.name }}</span>
+        <button
+          type="button"
+          class="rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-600 transition-colors duration-200 hover:border-rose-300 hover:text-rose-700"
+          (click)="removeStrategy(strategy)"
+        >
+          Remove
+        </button>
+      </li>
+    </ul>
+  </div>
+
   <div *ngIf="!results.length" class="fade-in-300 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
     Click “Compare strategies” to see how the presets differ.
   </div>

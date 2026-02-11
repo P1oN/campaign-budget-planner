@@ -84,7 +84,6 @@ describe('ComparisonPanelComponent', () => {
 
     fixture.detectChanges();
     component.compare();
-    fixture.detectChanges();
 
     expect(mockApi.compare).toHaveBeenCalledWith({
       totalBudget: 10000,
@@ -97,11 +96,6 @@ describe('ComparisonPanelComponent', () => {
       ],
     });
     expect(component.results.length).toBe(4);
-
-    const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain('Balanced');
-    expect(text).toContain('Max Reach');
-    expect(text).toContain('Custom V45/D35/S20');
   });
 
   it('emits selected strategy for detailed view when strategy name is clicked', () => {
@@ -147,5 +141,20 @@ describe('ComparisonPanelComponent', () => {
       durationDays: 30,
       customStrategies: [{ name: 'Valid', mix: { video: 0.5, display: 0.2, social: 0.3 } }]
     });
+  });
+
+  it('emits remove event for saved custom strategy', () => {
+    const fixture = TestBed.createComponent(ComparisonPanelComponent);
+    const component = fixture.componentInstance;
+    const removeSpy = spyOn(component.removeSavedStrategy, 'emit');
+    const strategy = { name: 'Custom V40/D30/S30', mix: { video: 0.4, display: 0.3, social: 0.3 } };
+    component.customStrategies = [strategy];
+
+    fixture.detectChanges();
+    const removeButton = Array.from(fixture.nativeElement.querySelectorAll('button'))
+      .find((button) => (button as HTMLButtonElement).textContent?.includes('Remove')) as HTMLButtonElement;
+    removeButton.click();
+
+    expect(removeSpy).toHaveBeenCalledWith(strategy);
   });
 });

@@ -2,9 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { CampaignPlannerApi } from '../../core/api/campaign-planner.api';
+import { isValidCustomStrategy } from '../../core/models/custom-strategy.validation';
 import {
   BudgetPlanResponse,
-  ChannelShareMix,
   CustomStrategy,
   CpmOverrides,
   StrategyCompareRequest,
@@ -22,6 +22,7 @@ export class ComparisonPanelComponent {
   @Input() cpmOverrides?: CpmOverrides;
   @Input() customStrategies: CustomStrategy[] = [];
   @Output() viewDetails = new EventEmitter<BudgetPlanResponse>();
+  @Output() removeSavedStrategy = new EventEmitter<CustomStrategy>();
 
   loading = false;
   errorMessage = '';
@@ -63,9 +64,7 @@ export class ComparisonPanelComponent {
     if (this.cpmOverrides && Object.keys(this.cpmOverrides).length > 0) {
       request.cpmOverrides = this.cpmOverrides;
     }
-    const validCustomStrategies = this.customStrategies.filter((strategy) =>
-      this.isValidCustomStrategy(strategy)
-    );
+    const validCustomStrategies = this.customStrategies.filter((strategy) => isValidCustomStrategy(strategy));
     if (validCustomStrategies.length > 0) {
       request.customStrategies = validCustomStrategies;
     }
@@ -118,6 +117,10 @@ export class ComparisonPanelComponent {
     this.viewDetails.emit(item);
   }
 
+  removeStrategy(strategy: CustomStrategy): void {
+    this.removeSavedStrategy.emit(strategy);
+  }
+
   private formatApiError(err: unknown, fallback: string): string {
     const message = (err as { error?: { message?: unknown } })?.error?.message;
     if (Array.isArray(message)) {
@@ -129,23 +132,4 @@ export class ComparisonPanelComponent {
     return fallback;
   }
 
-  private isValidCustomStrategy(strategy: CustomStrategy): boolean {
-    if (!strategy?.name || !strategy.mix) {
-      return false;
-    }
-    return this.isValidMix(strategy.mix);
-  }
-
-  private isValidMix(mix: ChannelShareMix): boolean {
-    const values = [mix.video, mix.display, mix.social];
-    if (values.some((value) => !Number.isFinite(value))) {
-      return false;
-    }
-    const inBounds = values.every((value) => value >= 0 && value <= 1);
-    if (!inBounds) {
-      return false;
-    }
-    const tolerance = 0.0001;
-    return Math.abs(values.reduce((sum, value) => sum + value, 0) - 1) <= tolerance;
-  }
 }
