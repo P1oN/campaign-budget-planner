@@ -96,8 +96,8 @@ describe('ComparisonPanelComponent', () => {
     const emitSpy = spyOn(component.viewDetails, 'emit');
 
     fixture.detectChanges();
-    const strategyButton = fixture.nativeElement.querySelector('tbody button') as HTMLButtonElement;
-    strategyButton.click();
+    const strategyRow = fixture.nativeElement.querySelector('tbody tr') as HTMLTableRowElement;
+    strategyRow.click();
 
     expect(emitSpy).toHaveBeenCalledWith(comparisonResults[0]);
     expect(component.selectedStrategyName).toBe('Balanced');

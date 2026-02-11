@@ -13,7 +13,7 @@
             type="number"
             min="1"
             formControlName="totalBudget"
-            class="w-full rounded-lg border border-slate-200 px-3 py-2 text-slate-900 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+            class="w-full rounded-lg border border-slate-200 px-3 py-2 text-slate-900 transition-colors duration-300 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
           />
           <span class="text-xs text-rose-600" *ngIf="form.get('totalBudget')?.touched && form.get('totalBudget')?.invalid">
             Budget must be &gt; 0.
@@ -26,7 +26,7 @@
             type="number"
             min="1"
             formControlName="durationDays"
-            class="w-full rounded-lg border border-slate-200 px-3 py-2 text-slate-900 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+            class="w-full rounded-lg border border-slate-200 px-3 py-2 text-slate-900 transition-colors duration-300 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
           />
           <span class="text-xs text-rose-600" *ngIf="form.get('durationDays')?.touched && form.get('durationDays')?.invalid">
             Duration must be &gt; 0.
@@ -39,7 +39,7 @@
           <label class="text-sm font-medium text-slate-700">Strategy</label>
           <select
             formControlName="strategy"
-            class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+            class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 transition-colors duration-300 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
           >
             <option *ngFor="let option of strategyOptions" [value]="option.key">{{ option.label }}</option>
           </select>
@@ -50,7 +50,7 @@
       </div>
 
       <div class="space-y-3">
-        <label class="flex items-center gap-3 text-sm font-medium text-slate-700">
+        <label class="flex items-center gap-3 text-sm font-medium text-slate-700 cursor-pointer">
           <input type="checkbox" formControlName="overrideCpm" class="h-4 w-4 rounded border-slate-300 text-emerald-600" />
           Override CPM
         </label>
@@ -68,7 +68,7 @@
               min="1"
               formControlName="video"
               [placeholder]="defaultCpm?.video ?? ''"
-              class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+              class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 transition-colors duration-300 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
             />
           </label>
           <label class="space-y-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -78,7 +78,7 @@
               min="1"
               formControlName="display"
               [placeholder]="defaultCpm?.display ?? ''"
-              class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+              class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 transition-colors duration-300 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
             />
           </label>
           <label class="space-y-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -88,7 +88,7 @@
               min="1"
               formControlName="social"
               [placeholder]="defaultCpm?.social ?? ''"
-              class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+              class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 transition-colors duration-300 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
             />
           </label>
         </div>
@@ -107,7 +107,7 @@
               min="0"
               max="100"
               formControlName="video"
-              class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+              class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 transition-colors duration-300 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
             />
           </label>
           <label class="space-y-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -117,7 +117,7 @@
               min="0"
               max="100"
               formControlName="display"
-              class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+              class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 transition-colors duration-300 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
             />
           </label>
           <label class="space-y-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -127,7 +127,7 @@
               min="0"
               max="100"
               formControlName="social"
-              class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+              class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 transition-colors duration-300 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
             />
           </label>
         </div>
@@ -137,7 +137,7 @@
       <div class="flex flex-wrap items-center gap-3">
         <button
           type="submit"
-          class="rounded-full bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-700"
+          class="rounded-full bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow transition-colors duration-300 hover:bg-emerald-700 hover:shadow-md disabled:shadow"
           [disabled]="loading"
         >
           {{ loading ? 'Planning…' : 'Generate plan' }}
@@ -166,11 +166,11 @@
         <span class="rounded-full bg-slate-100 px-2 py-1">Strategy {{ resultStrategyLabel }}</span>
       </div>
 
-      <div *ngIf="!plan" class="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
+      <div *ngIf="!plan" class="fade-in-300 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
         Enter a budget and duration, then generate a plan to see allocation details.
       </div>
 
-      <div *ngIf="plan" class="space-y-4">
+      <div *ngIf="plan" class="fade-in-300 space-y-4">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
             <thead class="text-xs uppercase tracking-wide text-slate-400">
@@ -204,7 +204,7 @@
               </div>
               <div class="h-2 rounded-full bg-slate-100">
                 <div
-                  class="h-2 rounded-full bg-emerald-500"
+                  class="h-2 rounded-full bg-emerald-500 transition-all duration-300"
                   [style.width]="barWidth(item.budget, resultBudget)"
                 ></div>
               </div>
@@ -222,7 +222,7 @@
               </div>
               <div class="h-2 rounded-full bg-slate-100">
                 <div
-                  class="h-2 rounded-full bg-slate-900"
+                  class="h-2 rounded-full bg-slate-900 transition-all duration-300"
                   [style.width]="barWidth(item.impressions, maxImpressions())"
                 ></div>
               </div>
@@ -230,7 +230,7 @@
           </div>
         </div>
 
-        <div *ngIf="plan.warnings?.length" class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+        <div *ngIf="plan.warnings?.length" class="fade-in-300 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
           <p class="font-semibold">Warnings</p>
           <ul class="mt-2 list-disc pl-4">
             <li *ngFor="let warning of plan.warnings">{{ warning }}</li>
