@@ -1,10 +1,13 @@
 import { Type } from 'class-transformer';
 import {
+  IsDefined,
   IsIn,
+  IsInt,
   IsNumber,
   IsOptional,
   Min,
   ValidateNested,
+  ValidateIf,
   Max,
   IsObject
 } from 'class-validator';
@@ -56,7 +59,7 @@ export class PlanRequestDto {
   totalBudget!: number;
 
   @Type(() => Number)
-  @IsNumber()
+  @IsInt()
   @Min(1)
   durationDays!: number;
 
@@ -69,7 +72,8 @@ export class PlanRequestDto {
   @IsObject()
   cpmOverrides?: CpmOverridesDto;
 
-  @IsOptional()
+  @ValidateIf((value: PlanRequestDto) => value.strategy === 'custom')
+  @IsDefined()
   @ValidateNested()
   @Type(() => CustomMixDto)
   @IsObject()

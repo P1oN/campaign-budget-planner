@@ -21,6 +21,7 @@ describe('PlannerPageComponent', () => {
   const planResponse: BudgetPlanResponse = {
     strategy: 'balanced',
     totalBudget: 10000,
+    durationDays: 30,
     allocations: [
       { channelKey: 'video', share: 0.3, budget: 3000, cpm: 12, impressions: 250000 },
       { channelKey: 'display', share: 0.3, budget: 3000, cpm: 6, impressions: 500000 },
@@ -61,6 +62,56 @@ describe('PlannerPageComponent', () => {
     expect(text).toContain('Video');
   });
 
+  it('validates custom mix using floating-point tolerance', () => {
+    const fixture = TestBed.createComponent(PlannerPageComponent);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance;
+    component.form.get('strategy')?.setValue('custom');
+    component.form.get('customMix.video')?.setValue(33.33);
+    component.form.get('customMix.display')?.setValue(33.33);
+    component.form.get('customMix.social')?.setValue(33.34);
+
+    component.submit();
+
+    expect(component.errorMessage).toBe('');
+    expect(mockApi.createPlan).toHaveBeenCalled();
+  });
+
+  it('sends CPM overrides only when user provides changed CPM values', () => {
+    const fixture = TestBed.createComponent(PlannerPageComponent);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance;
+    component.form.get('overrideCpm')?.setValue(true);
+    component.form.get('cpm.video')?.setValue(12);
+    component.form.get('cpm.display')?.setValue(8);
+    component.form.get('cpm.social')?.setValue('');
+
+    component.submit();
+
+    expect(mockApi.createPlan).toHaveBeenCalledWith({
+      totalBudget: 10000,
+      durationDays: 30,
+      strategy: 'balanced',
+      cpmOverrides: { display: 8 },
+    });
+  });
+
+  it('blocks submit when CPM overrides contain invalid values', () => {
+    const fixture = TestBed.createComponent(PlannerPageComponent);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance;
+    component.form.get('overrideCpm')?.setValue(true);
+    component.form.get('cpm.video')?.setValue(0);
+
+    component.submit();
+
+    expect(component.errorMessage).toBe('Please correct the highlighted fields.');
+    expect(mockApi.createPlan).toHaveBeenCalledTimes(0);
+  });
+
   it('opens detailed results from a selected comparison strategy', () => {
     const fixture = TestBed.createComponent(PlannerPageComponent);
     fixture.detectChanges();
@@ -69,6 +120,7 @@ describe('PlannerPageComponent', () => {
     const selectedPlan: BudgetPlanResponse = {
       strategy: 'max_reach',
       totalBudget: 10000,
+      durationDays: 30,
       allocations: [
         { channelKey: 'video', share: 0.15, budget: 1500, cpm: 12, impressions: 125000 },
         { channelKey: 'display', share: 0.35, budget: 3500, cpm: 6, impressions: 583333 },

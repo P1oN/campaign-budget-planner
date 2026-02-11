@@ -1,14 +1,15 @@
 export type ChannelKey = 'video' | 'display' | 'social';
 export type StrategyKey = 'balanced' | 'max_reach' | 'max_engagement' | 'custom';
 
-export type Mix = Record<ChannelKey, number>;
-export type CpmOverrides = Partial<Record<ChannelKey, number>>;
+export type ChannelShareMix = Record<ChannelKey, number>;
+export type ChannelCpmMap = Record<ChannelKey, number>;
+export type CpmOverrides = Partial<ChannelCpmMap>;
 
 export interface BudgetPlanRequest {
   totalBudget: number;
   durationDays: number;
   strategy: StrategyKey;
-  customMix?: Mix;
+  customMix?: ChannelShareMix;
   cpmOverrides?: CpmOverrides;
 }
 
@@ -24,6 +25,7 @@ export interface BudgetPlanResponse {
   strategy: StrategyKey;
   strategyLabel?: string;
   totalBudget: number;
+  durationDays: number;
   allocations: ChannelAllocation[];
   totals: {
     impressionsTotal: number;
@@ -33,7 +35,7 @@ export interface BudgetPlanResponse {
 
 export interface CustomStrategy {
   name: string;
-  mix: Mix;
+  mix: ChannelShareMix;
 }
 
 export interface StrategyCompareRequest {
@@ -45,6 +47,6 @@ export interface StrategyCompareRequest {
 
 export interface ConfigResponse {
   channels: ChannelKey[];
-  defaultCpms: Mix;
-  strategyPresets: Record<Exclude<StrategyKey, 'custom'>, Mix>;
+  defaultCpms: ChannelCpmMap;
+  strategyPresets: Record<Exclude<StrategyKey, 'custom'>, ChannelShareMix>;
 }

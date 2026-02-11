@@ -26,10 +26,10 @@ describe('CampaignPlannerService', () => {
     const display = result.allocations.find((alloc) => alloc.channelKey === 'display');
     const social = result.allocations.find((alloc) => alloc.channelKey === 'social');
 
-    expect(video?.impressions).toBe(25000);
-    expect(display?.impressions).toBe(50000);
-    expect(social?.impressions).toBe(100000);
-    expect(result.totals.impressionsTotal).toBe(175000);
+    expect(video?.impressions).toBe(24990);
+    expect(display?.impressions).toBe(49980);
+    expect(social?.impressions).toBe(99990);
+    expect(result.totals.impressionsTotal).toBe(174960);
   });
 
   it('throws when custom mix sum is invalid', () => {
@@ -99,7 +99,7 @@ describe('CampaignPlannerService', () => {
     });
 
     const video = result.allocations.find((alloc) => alloc.channelKey === 'video');
-    expect(video?.impressions).toBe(12500);
+    expect(video?.impressions).toBe(12480);
   });
 
   it('getConfig includes channels, defaultCpms, and strategyPresets', () => {
@@ -117,7 +117,8 @@ describe('CampaignPlannerService', () => {
       'max_reach',
       { video: 0.4, display: 0.3, social: 0.3 },
       { video: 12, display: 6, social: 4 },
-      1000
+      1000,
+      30
     );
 
     expect(plan.warnings.length).toBeGreaterThan(0);

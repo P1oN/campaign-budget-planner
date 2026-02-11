@@ -29,7 +29,7 @@ export class CampaignPlannerService {
     const strategy = dto.strategy;
     const shares = this.resolveShares(strategy, dto.customMix);
     const cpms = this.resolveCpms(dto.cpmOverrides);
-    return this.buildPlan(strategy, shares, cpms, dto.totalBudget);
+    return this.buildPlan(strategy, shares, cpms, dto.totalBudget, dto.durationDays);
   }
 
   compare(dto: CompareRequestDto): PlanResponse[] {
@@ -41,12 +41,19 @@ export class CampaignPlannerService {
     ];
     const presetResults = presets.map((strategy) => {
       const shares = this.strategyRepository.getPreset(strategy);
-      return this.buildPlan(strategy, shares, cpms, dto.totalBudget);
+      return this.buildPlan(strategy, shares, cpms, dto.totalBudget, dto.durationDays);
     });
 
     const customResults = (dto.customStrategies ?? []).map((customStrategy) => {
       const shares = this.resolveShares('custom', customStrategy.mix);
-      return this.buildPlan('custom', shares, cpms, dto.totalBudget, customStrategy.name);
+      return this.buildPlan(
+        'custom',
+        shares,
+        cpms,
+        dto.totalBudget,
+        dto.durationDays,
+        customStrategy.name
+      );
     });
 
     return [...presetResults, ...customResults];
@@ -69,11 +76,7 @@ export class CampaignPlannerService {
       return this.strategyRepository.getPreset(strategy);
     }
 
-    if (!customMix) {
-      throw new BadRequestException('Custom mix is required when strategy is custom.');
-    }
-
-    const { video, display, social } = customMix;
+    const { video, display, social } = customMix ?? {};
     const hasAllChannels =
       typeof video === 'number' && typeof display === 'number' && typeof social === 'number';
 
@@ -99,13 +102,16 @@ export class CampaignPlannerService {
     shares: ChannelShareMap,
     cpms: ChannelCpmMap,
     totalBudget: number,
+    durationDays: number,
     strategyLabel?: string
   ): PlanResponse {
     const allocations: ChannelAllocation[] = CHANNEL_KEYS.map((channelKey) => {
       const share = shares[channelKey];
       const budget = totalBudget * share;
+      const dailyBudget = budget / durationDays;
       const cpm = cpms[channelKey];
-      const impressions = Math.floor((budget / cpm) * 1000);
+      const impressionsPerDay = Math.floor((dailyBudget / cpm) * 1000);
+      const impressions = impressionsPerDay * durationDays;
       return {
         channelKey,
         share,
@@ -121,6 +127,7 @@ export class CampaignPlannerService {
       strategy,
       strategyLabel,
       totalBudget,
+      durationDays,
       allocations,
       totals: { impressionsTotal },
       warnings: getSanityWarnings(strategy, shares)

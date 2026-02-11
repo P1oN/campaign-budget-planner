@@ -102,13 +102,23 @@ components:
       type: string
       enum: [balanced, max_reach, max_engagement, custom]
 
-    Mix:
+    ShareMix:
       type: object
       additionalProperties: false
       properties:
-        video: { type: number, minimum: 0 }
-        display: { type: number, minimum: 0 }
-        social: { type: number, minimum: 0 }
+        video: { type: number, minimum: 0, maximum: 1 }
+        display: { type: number, minimum: 0, maximum: 1 }
+        social: { type: number, minimum: 0, maximum: 1 }
+      required: [video, display, social]
+
+    CpmMap:
+      type: object
+      additionalProperties: false
+      properties:
+        video: { type: number, minimum: 0.01 }
+        display: { type: number, minimum: 0.01 }
+        social: { type: number, minimum: 0.01 }
+      required: [video, display, social]
 
     CpmOverrides:
       type: object
@@ -132,7 +142,7 @@ components:
         strategy:
           $ref: "#/components/schemas/StrategyKey"
         customMix:
-          $ref: "#/components/schemas/Mix"
+          $ref: "#/components/schemas/ShareMix"
         cpmOverrides:
           $ref: "#/components/schemas/CpmOverrides"
 
@@ -167,13 +177,15 @@ components:
 
     BudgetPlanResponse:
       type: object
-      required: [totalBudget, durationDays, strategyUsed, allocations, totals, warnings]
+      required: [totalBudget, durationDays, strategy, allocations, totals, warnings]
       additionalProperties: false
       properties:
         totalBudget: { type: number }
         durationDays: { type: integer }
-        strategyUsed:
+        strategy:
           $ref: "#/components/schemas/StrategyKey"
+        strategyLabel:
+          type: string
         allocations:
           type: array
           items:
@@ -183,6 +195,17 @@ components:
         warnings:
           type: array
           items: { type: string }
+
+    CustomStrategy:
+      type: object
+      required: [name, mix]
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          maxLength: 60
+        mix:
+          $ref: "#/components/schemas/ShareMix"
 
     StrategyCompareRequest:
       type: object
@@ -197,70 +220,49 @@ components:
           minimum: 1
         cpmOverrides:
           $ref: "#/components/schemas/CpmOverrides"
-
-    StrategySummary:
-      type: object
-      required: [strategy, totals, allocations]
-      additionalProperties: false
-      properties:
-        strategy:
-          $ref: "#/components/schemas/StrategyKey"
-        totals:
-          $ref: "#/components/schemas/Totals"
-        allocations:
+        customStrategies:
           type: array
+          maxItems: 10
           items:
-            $ref: "#/components/schemas/ChannelAllocation"
-        warnings:
-          type: array
-          items: { type: string }
+            $ref: "#/components/schemas/CustomStrategy"
 
     StrategyCompareResponse:
-      type: object
-      required: [totalBudget, durationDays, results]
-      additionalProperties: false
-      properties:
-        totalBudget: { type: number }
-        durationDays: { type: integer }
-        results:
-          type: array
-          items:
-            $ref: "#/components/schemas/StrategySummary"
+      type: array
+      items:
+        $ref: "#/components/schemas/BudgetPlanResponse"
 
     ConfigResponse:
       type: object
-      required: [channels, strategies]
+      required: [channels, defaultCpms, strategyPresets]
       additionalProperties: false
       properties:
         channels:
           type: array
           items:
-            type: object
-            required: [channelKey, defaultCpm]
-            additionalProperties: false
-            properties:
-              channelKey:
-                $ref: "#/components/schemas/ChannelKey"
-              defaultCpm:
-                type: number
-        strategies:
-          type: array
-          items:
-            type: object
-            required: [strategy, mix]
-            additionalProperties: false
-            properties:
-              strategy:
-                $ref: "#/components/schemas/StrategyKey"
-              mix:
-                $ref: "#/components/schemas/Mix"
+            $ref: "#/components/schemas/ChannelKey"
+        defaultCpms:
+          $ref: "#/components/schemas/CpmMap"
+        strategyPresets:
+          type: object
+          additionalProperties: false
+          required: [balanced, max_reach, max_engagement]
+          properties:
+            balanced:
+              $ref: "#/components/schemas/ShareMix"
+            max_reach:
+              $ref: "#/components/schemas/ShareMix"
+            max_engagement:
+              $ref: "#/components/schemas/ShareMix"
 
     ApiError:
       type: object
       required: [message]
-      additionalProperties: false
       properties:
-        message: { type: string }
+        message:
+          oneOf:
+            - type: string
+            - type: array
+              items: { type: string }
         details:
           type: array
           items: { type: string }

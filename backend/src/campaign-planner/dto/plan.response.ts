@@ -9,6 +9,7 @@ export interface PlanResponse {
   strategy: StrategyKey;
   strategyLabel?: string;
   totalBudget: number;
+  durationDays: number;
   allocations: ChannelAllocation[];
   totals: PlanTotals;
   warnings: string[];

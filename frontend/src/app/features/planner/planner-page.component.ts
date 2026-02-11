@@ -16,9 +16,10 @@ import {
   BudgetPlanRequest,
   BudgetPlanResponse,
   ChannelKey,
+  ChannelShareMix,
+  ChannelCpmMap,
   CustomStrategy,
   CpmOverrides,
-  Mix,
   StrategyKey,
 } from '../../core/models/domain.models';
 import { ComparisonPanelComponent } from '../comparison/comparison-panel.component';
@@ -57,7 +58,7 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
   loading = false;
   errorMessage = '';
   configError = '';
-  defaultCpm: Mix | null = null;
+  defaultCpm: ChannelCpmMap | null = null;
   customStrategyHistory: CustomStrategy[] = [];
 
   private readonly destroy$ = new Subject<void>();
@@ -65,13 +66,13 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
   constructor(private readonly fb: FormBuilder, private readonly api: CampaignPlannerApi) {
     this.form = this.fb.group({
       totalBudget: [10000, [Validators.required, Validators.min(1)]],
-      durationDays: [30, [Validators.required, Validators.min(1)]],
+      durationDays: [30, [Validators.required, Validators.min(1), PlannerPageComponent.integerValidator()]],
       strategy: ['balanced', Validators.required],
       overrideCpm: [false],
       cpm: this.fb.group({
-        video: [null],
-        display: [null],
-        social: [null],
+        video: [null, [Validators.min(0.01)]],
+        display: [null, [Validators.min(0.01)]],
+        social: [null, [Validators.min(0.01)]],
       }),
       customMix: this.fb.group(
         {
@@ -165,7 +166,7 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.loading = false;
-        this.errorMessage = err?.error?.message ?? 'Failed to generate plan.';
+        this.errorMessage = this.formatApiError(err, 'Failed to generate plan.');
       },
     });
   }
@@ -214,6 +215,10 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
 
   get durationDays(): number {
     return Number(this.form.get('durationDays')?.value ?? 0);
+  }
+
+  get resultDurationDays(): number {
+    return this.plan?.durationDays ?? this.durationDays;
   }
 
   get resultBudget(): number {
@@ -267,7 +272,7 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
     this.plan = plan;
   }
 
-  private percentToMix(raw: { [key: string]: number }): Mix {
+  private percentToMix(raw: { [key: string]: number }): ChannelShareMix {
     return {
       video: (Number(raw?.['video']) || 0) / 100,
       display: (Number(raw?.['display']) || 0) / 100,
@@ -315,7 +320,7 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  private storeCustomStrategy(mix: Mix): void {
+  private storeCustomStrategy(mix: ChannelShareMix): void {
     const key = this.mixKey(mix);
     const deduped = this.customStrategyHistory.filter((strategy) => this.mixKey(strategy.mix) !== key);
     const strategy: CustomStrategy = {
@@ -326,14 +331,14 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
     this.persistCustomStrategyHistory();
   }
 
-  private buildCustomStrategyName(mix: Mix): string {
+  private buildCustomStrategyName(mix: ChannelShareMix): string {
     const v = Math.round(mix.video * 100);
     const d = Math.round(mix.display * 100);
     const s = Math.round(mix.social * 100);
     return `Custom V${v}/D${d}/S${s}`;
   }
 
-  private mixKey(mix: Mix): string {
+  private mixKey(mix: ChannelShareMix): string {
     return `${mix.video.toFixed(4)}|${mix.display.toFixed(4)}|${mix.social.toFixed(4)}`;
   }
 
@@ -356,10 +361,14 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
   }
 
   private persistCustomStrategyHistory(): void {
-    localStorage.setItem(
-      PlannerPageComponent.CUSTOM_STRATEGY_HISTORY_KEY,
-      JSON.stringify(this.customStrategyHistory)
-    );
+    try {
+      localStorage.setItem(
+        PlannerPageComponent.CUSTOM_STRATEGY_HISTORY_KEY,
+        JSON.stringify(this.customStrategyHistory)
+      );
+    } catch {
+      // Ignore storage failures (private mode/quota) and keep in-memory history.
+    }
   }
 
   private isValidCustomStrategy(value: unknown): value is CustomStrategy {
@@ -385,7 +394,29 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
       const total = ['video', 'display', 'social']
         .map((key) => Number(raw[key]) || 0)
         .reduce((sum, value) => sum + value, 0);
-      return total === 100 ? null : { mixSumInvalid: true };
+      const tolerance = 0.0001;
+      return Math.abs(total - 100) <= tolerance ? null : { mixSumInvalid: true };
     };
+  }
+
+  private static integerValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const value = Number(control.value);
+      if (!Number.isFinite(value)) {
+        return { integer: true };
+      }
+      return Number.isInteger(value) ? null : { integer: true };
+    };
+  }
+
+  private formatApiError(err: unknown, fallback: string): string {
+    const message = (err as { error?: { message?: unknown } })?.error?.message;
+    if (Array.isArray(message)) {
+      return message.join(' ');
+    }
+    if (typeof message === 'string' && message.trim()) {
+      return message;
+    }
+    return fallback;
   }
 }

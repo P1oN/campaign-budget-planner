@@ -10,7 +10,8 @@
   "scripts": {
     "start": "ng serve --host 0.0.0.0 --port 4200 --proxy-config proxy.conf.json",
     "build": "ng build",
-    "test": "ng test --watch=false --browsers=ChromeHeadless"
+    "test": "ng test",
+    "test-headless": "ng test --watch=false --browsers=ChromeHeadless"
   },
   "dependencies": {
     "@angular/common": "^21.1.3",

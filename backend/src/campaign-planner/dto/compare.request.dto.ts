@@ -3,6 +3,7 @@ import {
   ArrayMaxSize,
   IsArray,
   IsString,
+  IsInt,
   IsNumber,
   IsOptional,
   Min,
@@ -70,7 +71,7 @@ export class CompareRequestDto {
   totalBudget!: number;
 
   @Type(() => Number)
-  @IsNumber()
+  @IsInt()
   @Min(1)
   durationDays!: number;
 

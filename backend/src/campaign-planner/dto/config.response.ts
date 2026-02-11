@@ -1,7 +1,8 @@
-import { ChannelCpmMap, ChannelShareMap } from '../domain/channel.types';
+import { ChannelCpmMap, ChannelKey, ChannelShareMap } from '../domain/channel.types';
+import { StrategyKey } from '../domain/strategy.types';
 
 export interface ConfigResponse {
-  channels: string[];
+  channels: ChannelKey[];
   defaultCpms: ChannelCpmMap;
-  strategyPresets: Record<string, ChannelShareMap>;
+  strategyPresets: Record<Exclude<StrategyKey, 'custom'>, ChannelShareMap>;
 }

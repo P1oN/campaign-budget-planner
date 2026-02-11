@@ -12,6 +12,7 @@ describe('ComparisonPanelComponent', () => {
     {
       strategy: 'balanced',
       totalBudget: 10000,
+      durationDays: 30,
       allocations: [
         { channelKey: 'video', share: 0.3, budget: 3000, cpm: 12, impressions: 250000 },
         { channelKey: 'display', share: 0.3, budget: 3000, cpm: 6, impressions: 500000 },
@@ -23,6 +24,7 @@ describe('ComparisonPanelComponent', () => {
     {
       strategy: 'max_reach',
       totalBudget: 10000,
+      durationDays: 30,
       allocations: [
         { channelKey: 'video', share: 0.15, budget: 1500, cpm: 12, impressions: 125000 },
         { channelKey: 'display', share: 0.35, budget: 3500, cpm: 6, impressions: 583333 },
@@ -32,9 +34,22 @@ describe('ComparisonPanelComponent', () => {
       warnings: [],
     },
     {
+      strategy: 'max_engagement',
+      totalBudget: 10000,
+      durationDays: 30,
+      allocations: [
+        { channelKey: 'video', share: 0.5, budget: 5000, cpm: 12, impressions: 416666 },
+        { channelKey: 'display', share: 0.2, budget: 2000, cpm: 6, impressions: 333333 },
+        { channelKey: 'social', share: 0.3, budget: 3000, cpm: 4, impressions: 750000 },
+      ],
+      totals: { impressionsTotal: 1499999 },
+      warnings: [],
+    },
+    {
       strategy: 'custom',
       strategyLabel: 'Custom V45/D35/S20',
       totalBudget: 10000,
+      durationDays: 30,
       allocations: [
         { channelKey: 'video', share: 0.45, budget: 4500, cpm: 12, impressions: 375000 },
         { channelKey: 'display', share: 0.35, budget: 3500, cpm: 6, impressions: 583333 },
@@ -81,7 +96,7 @@ describe('ComparisonPanelComponent', () => {
         },
       ],
     });
-    expect(component.results.length).toBe(3);
+    expect(component.results.length).toBe(4);
 
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain('Balanced');

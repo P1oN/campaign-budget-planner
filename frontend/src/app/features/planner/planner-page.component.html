@@ -29,7 +29,7 @@
             class="w-full rounded-lg border border-slate-200 px-3 py-2 text-slate-900 transition-colors duration-300 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
           />
           <span class="text-xs text-rose-600" *ngIf="form.get('durationDays')?.touched && form.get('durationDays')?.invalid">
-            Duration must be &gt; 0.
+            Duration must be a whole number of days.
           </span>
         </label>
       </div>
@@ -70,6 +70,9 @@
               [placeholder]="defaultCpm?.video ?? ''"
               class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 transition-colors duration-300 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
             />
+            <span class="text-xs text-rose-600" *ngIf="form.get('cpm.video')?.touched && form.get('cpm.video')?.invalid">
+              CPM must be &gt; 0.
+            </span>
           </label>
           <label class="space-y-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
             Display
@@ -80,6 +83,9 @@
               [placeholder]="defaultCpm?.display ?? ''"
               class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 transition-colors duration-300 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
             />
+            <span class="text-xs text-rose-600" *ngIf="form.get('cpm.display')?.touched && form.get('cpm.display')?.invalid">
+              CPM must be &gt; 0.
+            </span>
           </label>
           <label class="space-y-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
             Social
@@ -90,6 +96,9 @@
               [placeholder]="defaultCpm?.social ?? ''"
               class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 transition-colors duration-300 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
             />
+            <span class="text-xs text-rose-600" *ngIf="form.get('cpm.social')?.touched && form.get('cpm.social')?.invalid">
+              CPM must be &gt; 0.
+            </span>
           </label>
         </div>
       </div>
@@ -162,7 +171,7 @@
       </div>
       <div class="mb-4 flex flex-wrap gap-2 text-xs text-slate-500">
         <span class="rounded-full bg-slate-100 px-2 py-1">Budget {{ resultBudget | currency:'USD':'symbol':'1.0-0' }}</span>
-        <span class="rounded-full bg-slate-100 px-2 py-1">Duration {{ durationDays }} days</span>
+        <span class="rounded-full bg-slate-100 px-2 py-1">Duration {{ resultDurationDays }} days</span>
         <span class="rounded-full bg-slate-100 px-2 py-1">Strategy {{ resultStrategyLabel }}</span>
       </div>
 
