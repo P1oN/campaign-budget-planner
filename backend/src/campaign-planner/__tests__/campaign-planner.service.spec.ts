@@ -57,6 +57,23 @@ describe('CampaignPlannerService', () => {
     ]);
   });
 
+  it('compare appends saved custom strategies', () => {
+    const results = service.compare({
+      totalBudget: 2000,
+      durationDays: 14,
+      customStrategies: [
+        {
+          name: 'Custom V45/D35/S20',
+          mix: { video: 0.45, display: 0.35, social: 0.2 }
+        }
+      ]
+    });
+
+    expect(results).toHaveLength(4);
+    expect(results[3].strategy).toBe('custom');
+    expect(results[3].strategyLabel).toBe('Custom V45/D35/S20');
+  });
+
   it('compare results include totals and channelKey allocations', () => {
     const results = service.compare({
       totalBudget: 2000,

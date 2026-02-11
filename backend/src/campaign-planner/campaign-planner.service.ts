@@ -39,10 +39,17 @@ export class CampaignPlannerService {
       'max_reach',
       'max_engagement'
     ];
-    return presets.map((strategy) => {
+    const presetResults = presets.map((strategy) => {
       const shares = this.strategyRepository.getPreset(strategy);
       return this.buildPlan(strategy, shares, cpms, dto.totalBudget);
     });
+
+    const customResults = (dto.customStrategies ?? []).map((customStrategy) => {
+      const shares = this.resolveShares('custom', customStrategy.mix);
+      return this.buildPlan('custom', shares, cpms, dto.totalBudget, customStrategy.name);
+    });
+
+    return [...presetResults, ...customResults];
   }
 
   private resolveCpms(overrides?: Partial<ChannelCpmMap>): ChannelCpmMap {
@@ -91,7 +98,8 @@ export class CampaignPlannerService {
     strategy: StrategyKey,
     shares: ChannelShareMap,
     cpms: ChannelCpmMap,
-    totalBudget: number
+    totalBudget: number,
+    strategyLabel?: string
   ): PlanResponse {
     const allocations: ChannelAllocation[] = CHANNEL_KEYS.map((channelKey) => {
       const share = shares[channelKey];
@@ -111,6 +119,7 @@ export class CampaignPlannerService {
 
     return {
       strategy,
+      strategyLabel,
       allocations,
       totals: { impressionsTotal },
       warnings: getSanityWarnings(strategy, shares)

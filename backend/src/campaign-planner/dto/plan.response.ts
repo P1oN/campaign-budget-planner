@@ -7,6 +7,7 @@ export interface PlanTotals {
 
 export interface PlanResponse {
   strategy: StrategyKey;
+  strategyLabel?: string;
   allocations: ChannelAllocation[];
   totals: PlanTotals;
   warnings: string[];

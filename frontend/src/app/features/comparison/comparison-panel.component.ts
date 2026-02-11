@@ -4,6 +4,7 @@ import { Component, Input } from '@angular/core';
 import { CampaignPlannerApi } from '../../core/api/campaign-planner.api';
 import {
   BudgetPlanResponse,
+  CustomStrategy,
   CpmOverrides,
   StrategyCompareRequest,
 } from '../../core/models/domain.models';
@@ -18,6 +19,7 @@ export class ComparisonPanelComponent {
   @Input() totalBudget = 0;
   @Input() durationDays = 0;
   @Input() cpmOverrides?: CpmOverrides;
+  @Input() customStrategies: CustomStrategy[] = [];
 
   loading = false;
   errorMessage = '';
@@ -52,6 +54,9 @@ export class ComparisonPanelComponent {
 
     if (this.cpmOverrides && Object.keys(this.cpmOverrides).length > 0) {
       request.cpmOverrides = this.cpmOverrides;
+    }
+    if (this.customStrategies.length > 0) {
+      request.customStrategies = this.customStrategies;
     }
 
     this.loading = true;
@@ -91,5 +96,9 @@ export class ComparisonPanelComponent {
     const d = Math.round((shares['display'] ?? 0) * 100);
     const s = Math.round((shares['social'] ?? 0) * 100);
     return `V:${v}% D:${d}% S:${s}%`;
+  }
+
+  strategyName(item: BudgetPlanResponse): string {
+    return item.strategyLabel ?? this.strategyLabels[item.strategy] ?? item.strategy;
   }
 }

@@ -22,6 +22,7 @@ export interface ChannelAllocation {
 
 export interface BudgetPlanResponse {
   strategy: StrategyKey;
+  strategyLabel?: string;
   allocations: ChannelAllocation[];
   totals: {
     impressionsTotal: number;
@@ -29,10 +30,16 @@ export interface BudgetPlanResponse {
   warnings: string[];
 }
 
+export interface CustomStrategy {
+  name: string;
+  mix: Mix;
+}
+
 export interface StrategyCompareRequest {
   totalBudget: number;
   durationDays: number;
   cpmOverrides?: CpmOverrides;
+  customStrategies?: CustomStrategy[];
 }
 
 export interface ConfigResponse {

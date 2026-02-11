@@ -29,6 +29,17 @@ describe('ComparisonPanelComponent', () => {
       totals: { impressionsTotal: 1958333 },
       warnings: [],
     },
+    {
+      strategy: 'custom',
+      strategyLabel: 'Custom V45/D35/S20',
+      allocations: [
+        { channelKey: 'video', share: 0.45, budget: 4500, cpm: 12, impressions: 375000 },
+        { channelKey: 'display', share: 0.35, budget: 3500, cpm: 6, impressions: 583333 },
+        { channelKey: 'social', share: 0.2, budget: 2000, cpm: 4, impressions: 500000 },
+      ],
+      totals: { impressionsTotal: 1458333 },
+      warnings: [],
+    },
   ];
 
   beforeEach(async () => {
@@ -46,6 +57,12 @@ describe('ComparisonPanelComponent', () => {
     const component = fixture.componentInstance;
     component.totalBudget = 10000;
     component.durationDays = 30;
+    component.customStrategies = [
+      {
+        name: 'Custom V45/D35/S20',
+        mix: { video: 0.45, display: 0.35, social: 0.2 },
+      },
+    ];
 
     fixture.detectChanges();
     component.compare();
@@ -54,11 +71,18 @@ describe('ComparisonPanelComponent', () => {
     expect(mockApi.compare).toHaveBeenCalledWith({
       totalBudget: 10000,
       durationDays: 30,
+      customStrategies: [
+        {
+          name: 'Custom V45/D35/S20',
+          mix: { video: 0.45, display: 0.35, social: 0.2 },
+        },
+      ],
     });
-    expect(component.results.length).toBe(2);
+    expect(component.results.length).toBe(3);
 
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain('Balanced');
     expect(text).toContain('Max Reach');
+    expect(text).toContain('Custom V45/D35/S20');
   });
 });

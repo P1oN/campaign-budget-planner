@@ -2,7 +2,7 @@
   <div class="mb-4 flex items-center justify-between">
     <div>
       <h3 class="text-lg font-semibold text-slate-900">Strategy Comparison</h3>
-      <p class="text-sm text-slate-500">Compare preset strategies with the same inputs.</p>
+      <p class="text-sm text-slate-500">Compare preset strategies and saved custom mixes with the same inputs.</p>
       <p *ngIf="totalBudget && durationDays" class="mt-2 text-xs text-slate-500">
         Using {{ totalBudget | currency:'USD':'symbol':'1.0-0' }} over {{ durationDays }} days.
       </p>
@@ -36,7 +36,7 @@
         </thead>
         <tbody>
           <tr *ngFor="let item of results" class="border-t border-slate-100">
-            <td class="py-3 font-medium text-slate-900">{{ strategyLabels[item.strategy] ?? item.strategy }}</td>
+            <td class="py-3 font-medium text-slate-900">{{ strategyName(item) }}</td>
             <td class="py-3 text-slate-600">{{ item.totals?.impressionsTotal | number:'1.0-0' }}</td>
             <td class="py-3 text-slate-600">{{ mixSummary(item) }}</td>
             <td class="py-3">

@@ -16,6 +16,7 @@ import {
   BudgetPlanRequest,
   BudgetPlanResponse,
   ChannelKey,
+  CustomStrategy,
   CpmOverrides,
   Mix,
   StrategyKey,
@@ -29,6 +30,9 @@ import { ComparisonPanelComponent } from '../comparison/comparison-panel.compone
   templateUrl: './planner-page.component.html',
 })
 export class PlannerPageComponent implements OnInit, OnDestroy {
+  private static readonly CUSTOM_STRATEGY_HISTORY_KEY = 'campaignPlanner.customStrategyHistory';
+  private static readonly MAX_CUSTOM_STRATEGY_HISTORY = 5;
+
   readonly strategyOptions: { key: StrategyKey; label: string; description: string }[] = [
     { key: 'balanced', label: 'Balanced', description: 'Even split for steady reach.' },
     { key: 'max_reach', label: 'Max Reach', description: 'Favor channels with lower CPM.' },
@@ -48,6 +52,7 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
   errorMessage = '';
   configError = '';
   defaultCpm: Mix | null = null;
+  customStrategyHistory: CustomStrategy[] = [];
 
   private readonly destroy$ = new Subject<void>();
 
@@ -74,6 +79,8 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.customStrategyHistory = this.loadCustomStrategyHistory();
+
     this.api.getConfig().subscribe({
       next: (config) => {
         this.defaultCpm = config.defaultCpms;
@@ -143,6 +150,9 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
     this.api.createPlan(request).subscribe({
       next: (plan) => {
         this.plan = plan;
+        if (strategy === 'custom' && request.customMix) {
+          this.storeCustomStrategy(request.customMix);
+        }
         this.loading = false;
       },
       error: (err) => {
@@ -259,6 +269,67 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
       }
     });
     return overrides;
+  }
+
+  private storeCustomStrategy(mix: Mix): void {
+    const key = this.mixKey(mix);
+    const deduped = this.customStrategyHistory.filter((strategy) => this.mixKey(strategy.mix) !== key);
+    const strategy: CustomStrategy = {
+      name: this.buildCustomStrategyName(mix),
+      mix,
+    };
+    this.customStrategyHistory = [strategy, ...deduped].slice(0, PlannerPageComponent.MAX_CUSTOM_STRATEGY_HISTORY);
+    this.persistCustomStrategyHistory();
+  }
+
+  private buildCustomStrategyName(mix: Mix): string {
+    const v = Math.round(mix.video * 100);
+    const d = Math.round(mix.display * 100);
+    const s = Math.round(mix.social * 100);
+    return `Custom V${v}/D${d}/S${s}`;
+  }
+
+  private mixKey(mix: Mix): string {
+    return `${mix.video.toFixed(4)}|${mix.display.toFixed(4)}|${mix.social.toFixed(4)}`;
+  }
+
+  private loadCustomStrategyHistory(): CustomStrategy[] {
+    try {
+      const raw = localStorage.getItem(PlannerPageComponent.CUSTOM_STRATEGY_HISTORY_KEY);
+      if (!raw) {
+        return [];
+      }
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+      return parsed
+        .filter((item): item is CustomStrategy => this.isValidCustomStrategy(item))
+        .slice(0, PlannerPageComponent.MAX_CUSTOM_STRATEGY_HISTORY);
+    } catch {
+      return [];
+    }
+  }
+
+  private persistCustomStrategyHistory(): void {
+    localStorage.setItem(
+      PlannerPageComponent.CUSTOM_STRATEGY_HISTORY_KEY,
+      JSON.stringify(this.customStrategyHistory)
+    );
+  }
+
+  private isValidCustomStrategy(value: unknown): value is CustomStrategy {
+    if (!value || typeof value !== 'object') {
+      return false;
+    }
+    const item = value as Partial<CustomStrategy>;
+    return (
+      typeof item.name === 'string' &&
+      !!item.mix &&
+      typeof item.mix.video === 'number' &&
+      typeof item.mix.display === 'number' &&
+      typeof item.mix.social === 'number'
+    );
   }
 
   static mixSumValidator(): ValidatorFn {
