@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { CampaignPlannerApi } from '../../core/api/campaign-planner.api';
 import {
@@ -20,10 +20,12 @@ export class ComparisonPanelComponent {
   @Input() durationDays = 0;
   @Input() cpmOverrides?: CpmOverrides;
   @Input() customStrategies: CustomStrategy[] = [];
+  @Output() viewDetails = new EventEmitter<BudgetPlanResponse>();
 
   loading = false;
   errorMessage = '';
   results: BudgetPlanResponse[] = [];
+  selectedStrategyName = '';
 
   readonly strategyLabels: Record<string, string> = {
     balanced: 'Balanced',
@@ -36,6 +38,7 @@ export class ComparisonPanelComponent {
   compare(): void {
     this.errorMessage = '';
     this.results = [];
+    this.selectedStrategyName = '';
 
     if (!this.totalBudget || this.totalBudget <= 0) {
       this.errorMessage = 'Budget must be > 0.';
@@ -100,5 +103,10 @@ export class ComparisonPanelComponent {
 
   strategyName(item: BudgetPlanResponse): string {
     return item.strategyLabel ?? this.strategyLabels[item.strategy] ?? item.strategy;
+  }
+
+  openDetails(item: BudgetPlanResponse): void {
+    this.selectedStrategyName = this.strategyName(item);
+    this.viewDetails.emit(item);
   }
 }

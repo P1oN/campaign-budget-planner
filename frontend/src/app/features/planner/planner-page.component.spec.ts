@@ -60,4 +60,27 @@ describe('PlannerPageComponent', () => {
     expect(text).toContain('Results');
     expect(text).toContain('Video');
   });
+
+  it('opens detailed results from a selected comparison strategy', () => {
+    const fixture = TestBed.createComponent(PlannerPageComponent);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance;
+    const selectedPlan: BudgetPlanResponse = {
+      strategy: 'max_reach',
+      totalBudget: 10000,
+      allocations: [
+        { channelKey: 'video', share: 0.15, budget: 1500, cpm: 12, impressions: 125000 },
+        { channelKey: 'display', share: 0.35, budget: 3500, cpm: 6, impressions: 583333 },
+        { channelKey: 'social', share: 0.5, budget: 5000, cpm: 4, impressions: 1250000 },
+      ],
+      totals: { impressionsTotal: 1958333 },
+      warnings: [],
+    };
+
+    component.showPlanDetails(selectedPlan);
+
+    expect(component.plan).toEqual(selectedPlan);
+    expect(component.resultStrategyLabel).toBe('Max Reach');
+  });
 });

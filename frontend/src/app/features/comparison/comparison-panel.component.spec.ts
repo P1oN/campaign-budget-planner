@@ -88,4 +88,18 @@ describe('ComparisonPanelComponent', () => {
     expect(text).toContain('Max Reach');
     expect(text).toContain('Custom V45/D35/S20');
   });
+
+  it('emits selected strategy for detailed view when strategy name is clicked', () => {
+    const fixture = TestBed.createComponent(ComparisonPanelComponent);
+    const component = fixture.componentInstance;
+    component.results = comparisonResults;
+    const emitSpy = spyOn(component.viewDetails, 'emit');
+
+    fixture.detectChanges();
+    const strategyButton = fixture.nativeElement.querySelector('tbody button') as HTMLButtonElement;
+    strategyButton.click();
+
+    expect(emitSpy).toHaveBeenCalledWith(comparisonResults[0]);
+    expect(component.selectedStrategyName).toBe('Balanced');
+  });
 });

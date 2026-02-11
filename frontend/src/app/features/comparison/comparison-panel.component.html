@@ -36,7 +36,16 @@
         </thead>
         <tbody>
           <tr *ngFor="let item of results" class="border-t border-slate-100">
-            <td class="py-3 font-medium text-slate-900">{{ strategyName(item) }}</td>
+            <td class="py-3 font-medium text-slate-900">
+              <button
+                type="button"
+                class="rounded px-1 py-0.5 text-left hover:text-emerald-700"
+                [class.bg-emerald-50]="selectedStrategyName === strategyName(item)"
+                (click)="openDetails(item)"
+              >
+                {{ strategyName(item) }}
+              </button>
+            </td>
             <td class="py-3 text-slate-600">{{ item.totals?.impressionsTotal | number:'1.0-0' }}</td>
             <td class="py-3 text-slate-600">{{ mixSummary(item) }}</td>
             <td class="py-3">

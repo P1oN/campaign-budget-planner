@@ -45,6 +45,12 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
     display: 'Display',
     social: 'Social',
   };
+  readonly strategyLabels: Record<StrategyKey, string> = {
+    balanced: 'Balanced',
+    max_reach: 'Max Reach',
+    max_engagement: 'Max Engagement',
+    custom: 'Custom',
+  };
 
   form: FormGroup;
   plan: BudgetPlanResponse | null = null;
@@ -180,6 +186,13 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
     return match?.label ?? '';
   }
 
+  get resultStrategyLabel(): string {
+    if (!this.plan) {
+      return this.strategyLabel;
+    }
+    return this.plan.strategyLabel ?? this.strategyLabels[this.plan.strategy] ?? this.plan.strategy;
+  }
+
   get showOverrides(): boolean {
     return Boolean(this.form.get('overrideCpm')?.value);
   }
@@ -248,6 +261,10 @@ export class PlannerPageComponent implements OnInit, OnDestroy {
       return '0%';
     }
     return `${Math.round((value / max) * 100)}%`;
+  }
+
+  showPlanDetails(plan: BudgetPlanResponse): void {
+    this.plan = plan;
   }
 
   private percentToMix(raw: { [key: string]: number }): Mix {
